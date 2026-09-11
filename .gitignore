@@ -17,3 +17,8 @@ google-services.json
 .kotlin/
 __pycache__/
 *.pyc
+
+# local AI-tooling (Claude Code skill installs), not project source
+/.agents/
+/.claude/
+/skills-lock.json
