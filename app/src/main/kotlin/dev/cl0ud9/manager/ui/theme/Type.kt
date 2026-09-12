@@ -1,18 +1,51 @@
 package dev.cl0ud9.manager.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import dev.cl0ud9.manager.R
 
-// type scale structure inspired by PixelPlayer, on the system default font
-// (their Google Sans Flex is a bundled proprietary font file, not something to redistribute here)
+// PixelPlayer's rounded look comes from a bundled proprietary variable font, which its license
+// forbids redistributing. Onest is a genuinely open (SIL OFL, see licenses/onest-OFL.txt), modern
+// geometric sans with similarly soft, rounded terminals - same warm effect, clean provenance. It's
+// a single variable font file, so each weight is the same file with a different "wght" axis setting
+// rather than separate font files, matching how PixelPlayer's own variable font is wired up
+@OptIn(ExperimentalTextApi::class)
+val OnestFamily =
+    FontFamily(
+        Font(
+            R.font.onest_variable,
+            weight = FontWeight.Normal,
+            variationSettings = FontVariation.Settings(FontVariation.weight(400)),
+        ),
+        Font(
+            R.font.onest_variable,
+            weight = FontWeight.Medium,
+            variationSettings = FontVariation.Settings(FontVariation.weight(500)),
+        ),
+        Font(
+            R.font.onest_variable,
+            weight = FontWeight.SemiBold,
+            variationSettings = FontVariation.Settings(FontVariation.weight(600)),
+        ),
+        Font(
+            R.font.onest_variable,
+            weight = FontWeight.Bold,
+            variationSettings = FontVariation.Settings(FontVariation.weight(700)),
+        ),
+    )
+
+// type scale structure inspired by PixelPlayer, now on our own legitimately-licensed rounded font
 val ManagerTypography =
     Typography(
         displayLarge =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = 48.sp,
                 lineHeight = 56.sp,
@@ -20,7 +53,7 @@ val ManagerTypography =
             ),
         headlineLarge =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 32.sp,
                 lineHeight = 40.sp,
@@ -28,7 +61,7 @@ val ManagerTypography =
             ),
         headlineMedium =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 28.sp,
                 lineHeight = 36.sp,
@@ -36,7 +69,7 @@ val ManagerTypography =
             ),
         headlineSmall =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 24.sp,
                 lineHeight = 32.sp,
@@ -44,7 +77,7 @@ val ManagerTypography =
             ),
         titleLarge =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 22.sp,
                 lineHeight = 28.sp,
@@ -52,7 +85,7 @@ val ManagerTypography =
             ),
         titleMedium =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp,
                 lineHeight = 24.sp,
@@ -60,7 +93,7 @@ val ManagerTypography =
             ),
         titleSmall =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
@@ -68,7 +101,7 @@ val ManagerTypography =
             ),
         bodyLarge =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
                 lineHeight = 24.sp,
@@ -76,7 +109,7 @@ val ManagerTypography =
             ),
         bodyMedium =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
@@ -84,7 +117,7 @@ val ManagerTypography =
             ),
         bodySmall =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
@@ -92,7 +125,7 @@ val ManagerTypography =
             ),
         labelLarge =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
                 lineHeight = 20.sp,
@@ -100,7 +133,7 @@ val ManagerTypography =
             ),
         labelMedium =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 lineHeight = 16.sp,
@@ -108,7 +141,7 @@ val ManagerTypography =
             ),
         labelSmall =
             TextStyle(
-                fontFamily = FontFamily.Default,
+                fontFamily = OnestFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 11.sp,
                 lineHeight = 16.sp,
