@@ -20,7 +20,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.cl0ud9.manager.ui.components.AppListItem
 import dev.cl0ud9.manager.ui.components.EmptyState
+import dev.cl0ud9.manager.ui.components.ManagerPullToRefreshBox
 import dev.cl0ud9.manager.ui.components.RefreshPillButton
 import dev.cl0ud9.manager.ui.util.RefreshOnResume
 import dev.cl0ud9.manager.ui.util.StaggeredAppear
@@ -47,7 +47,7 @@ fun AppsScreen(onAppClick: (String) -> Unit) {
     // the catalog can go stale between visits (a new app added, a new version published), and this is
     // the primary list screen for it - refreshFromNetwork() re-fetches the shared manifest cache rather
     // than just re-checking local installed state, so every other screen sharing that cache benefits too
-    PullToRefreshBox(
+    ManagerPullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = viewModel::refreshFromNetwork,
         modifier = Modifier.fillMaxSize(),
@@ -116,9 +116,8 @@ private fun AppsContent(
     }
 }
 
-// the catalog's count on one side, a manual refresh pill on the other - the same "count/label plus a
-// pill action" row shape as the reference app's Library screen, standing in for its grid/list toggle
-// (this app has no such view mode) while keeping the pill button itself
+// the catalog's count on one side, the refresh pill on the other - persistently visible, matching
+// the reference app's own Library header row (its count/label plus a pill action), not tucked away
 @Composable
 private fun AppsListHeader(
     appCount: Int,
