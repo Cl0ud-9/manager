@@ -44,3 +44,29 @@ openssl pkey -in manifest-signing.key -pubout -out manifest-signing.pub
 ```
 
 Keep `manifest-signing.key` as a CI secret (`MANIFEST_SIGNING_KEY`), never commit it. The public key (`manifest-signing.pub`) gets baked into the app as a resource - that one's fine to commit once Phase 2 wires it in.
+
+## 4. GitHub access token (needed to install the YouTube ReVanced catalog entry)
+
+Its build is published as a private draft release (see `revanced/README.md` for why), so the app
+needs an authenticated request to fetch it - a plain download URL won't work for a draft asset.
+Create a fine-grained personal access token scoped to just this repo with read-only "Contents"
+access (github.com -> Settings -> Developer settings -> Fine-grained tokens), then paste it into
+the app's own Settings > GitHub access. This is a per-installer credential entered in the app
+itself, not a CI secret - skip this section entirely if you don't plan to install that entry.
+
+## 5. ReVanced signing keystore (needed for `.github/workflows/revanced-youtube.yml`)
+
+Reuses your own ReVanced Manager keystore rather than minting a new one, so anything this pipeline
+signs stays update-compatible with anything you've already installed through ReVanced Manager
+itself. Export it from the ReVanced Manager app (Settings -> Import & export -> Keystore ->
+Export), note its alias and both passwords from the same screen, then:
+
+```
+base64 -w0 revanced-manager.keystore > revanced-manager.keystore.b64
+gh secret set REVANCED_KEYSTORE_BASE64 < revanced-manager.keystore.b64
+gh secret set REVANCED_KEYSTORE_PASSWORD
+gh secret set REVANCED_KEY_ALIAS
+gh secret set REVANCED_KEY_PASSWORD
+```
+
+Delete `revanced-manager.keystore.b64` locally once uploaded.
