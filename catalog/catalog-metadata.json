@@ -46,7 +46,7 @@
     {
       "id": "youtube-revanced",
       "displayName": "YouTube (ReVanced)",
-      "packageName": "com.google.android.youtube",
+      "packageName": "app.revanced.android.youtube",
       "supportStatus": "SUPPORTED",
       "installationMode": "CLEAN_INSTALL",
       "dependencyIds": ["microg-re"],
