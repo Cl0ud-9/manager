@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -35,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -66,6 +64,7 @@ fun SettingsScreen(
     val automaticDownloads by viewModel.automaticDownloads.collectAsStateWithLifecycle()
     val cacheClearedMessage by viewModel.cacheClearedMessage.collectAsStateWithLifecycle()
     val managerUpdateState by viewModel.managerUpdateState.collectAsStateWithLifecycle()
+    val selfUpdateState by viewModel.selfUpdateState.collectAsStateWithLifecycle()
     val hasGitHubToken by viewModel.hasGitHubToken.collectAsStateWithLifecycle()
     val feedbackState = rememberFeedbackUiState(viewModel)
     val deviceSummary = rememberDeviceSummary()
@@ -76,6 +75,8 @@ fun SettingsScreen(
     // first one still playing, on top of never reaching the ViewModel a second time either
     val clearCacheState = rememberDebouncedButtonState(onClick = viewModel::clearCache)
     val checkForUpdateState = rememberDebouncedButtonState(onClick = viewModel::checkForManagerUpdate)
+    val updateActions =
+        ManagerUpdateActions(checkForUpdateState, selfUpdateState, viewModel::installManagerUpdate)
 
     // one continuous grouped list (2dp seams, square-ish touching corners) instead of four
     // separately-floating cards - settingsGroupShape needs each row's position in the group.
@@ -119,7 +120,7 @@ fun SettingsScreen(
         AboutRow(
             versionName = versionName,
             managerUpdateState = managerUpdateState,
-            checkForUpdateState = checkForUpdateState,
+            updateActions = updateActions,
             shape = settingsGroupShape(ABOUT_ROW_INDEX, SETTINGS_ROW_COUNT),
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -184,7 +185,7 @@ private fun StorageRow(
 private fun AboutRow(
     versionName: String,
     managerUpdateState: ManagerUpdateUiState,
-    checkForUpdateState: DebouncedButtonState,
+    updateActions: ManagerUpdateActions,
     shape: Shape,
 ) {
     SettingsRow(
@@ -206,7 +207,7 @@ private fun AboutRow(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        ManagerUpdateSection(state = managerUpdateState, checkForUpdateState = checkForUpdateState)
+        ManagerUpdateSection(state = managerUpdateState, actions = updateActions)
     }
 }
 
@@ -249,7 +250,7 @@ private const val STATE_FADE_MS = 220
 @Composable
 private fun ManagerUpdateSection(
     state: ManagerUpdateUiState,
-    checkForUpdateState: DebouncedButtonState,
+    actions: ManagerUpdateActions,
 ) {
     AnimatedContent(
         targetState = state,
@@ -269,8 +270,8 @@ private fun ManagerUpdateSection(
                         text = "Check GitHub for a newer release of the manager itself.",
                     )
                     FilledTonalButton(
-                        onClick = checkForUpdateState.onClick,
-                        enabled = checkForUpdateState.enabled,
+                        onClick = actions.checkForUpdateState.onClick,
+                        enabled = actions.checkForUpdateState.enabled,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text("Check for updates")
@@ -297,10 +298,7 @@ private fun ManagerUpdateSection(
                 }
 
                 is ManagerUpdateUiState.Result ->
-                    ManagerUpdateResultContent(
-                        status = animatedState.status,
-                        checkForUpdateState = checkForUpdateState,
-                    )
+                    ManagerUpdateResultContent(status = animatedState.status, actions = actions)
             }
         }
     }
@@ -309,9 +307,8 @@ private fun ManagerUpdateSection(
 @Composable
 private fun ManagerUpdateResultContent(
     status: ManagerUpdateStatus,
-    checkForUpdateState: DebouncedButtonState,
+    actions: ManagerUpdateActions,
 ) {
-    val uriHandler = LocalUriHandler.current
     when (status) {
         is ManagerUpdateStatus.UpToDate -> {
             ManagerUpdateStatusRow(
@@ -320,7 +317,7 @@ private fun ManagerUpdateResultContent(
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                 text = "You're on the latest version.",
             )
-            CheckAgainButton(state = checkForUpdateState)
+            CheckAgainButton(state = actions.checkForUpdateState)
         }
 
         is ManagerUpdateStatus.UpdateAvailable -> {
@@ -331,9 +328,11 @@ private fun ManagerUpdateResultContent(
                 text = "Version ${status.latestVersion} is available.",
                 emphasize = true,
             )
-            Button(onClick = { uriHandler.openUri(status.releaseUrl) }, modifier = Modifier.fillMaxWidth()) {
-                Text("View release on GitHub")
-            }
+            SelfUpdateAction(
+                status = status,
+                selfUpdateState = actions.selfUpdateState,
+                onInstallUpdate = actions.onInstallUpdate,
+            )
         }
 
         is ManagerUpdateStatus.NoReleasePublished -> {
@@ -343,7 +342,7 @@ private fun ManagerUpdateResultContent(
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 text = "No manager releases have been published yet.",
             )
-            CheckAgainButton(state = checkForUpdateState)
+            CheckAgainButton(state = actions.checkForUpdateState)
         }
 
         is ManagerUpdateStatus.Failed -> {
@@ -353,7 +352,7 @@ private fun ManagerUpdateResultContent(
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 text = status.reason,
             )
-            CheckAgainButton(state = checkForUpdateState, label = "Retry")
+            CheckAgainButton(state = actions.checkForUpdateState, label = "Retry")
         }
     }
 }
@@ -370,8 +369,9 @@ private fun CheckAgainButton(
     }
 }
 
+// internal, not private - also called from ManagerSelfUpdateContent.kt (same package)
 @Composable
-private fun ManagerUpdateStatusRow(
+internal fun ManagerUpdateStatusRow(
     icon: Painter,
     badgeColor: Color,
     contentColor: Color,
