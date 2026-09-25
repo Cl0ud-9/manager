@@ -25,3 +25,7 @@ __pycache__/
 /.agents/
 /.claude/
 /skills-lock.json
+
+# local catalog generator output (catalog/scripts/generate_manifest.py)
+/manifest.json
+/manifest-work/
